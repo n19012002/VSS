@@ -226,8 +226,8 @@ func (p *Psiphon) Start() {
 						strings.Contains(message, "underlying conn is closed") ||
 						strings.Contains(message, "duplicate tunnel:") ||
 						strings.Contains(message, "tunnel failed:") {
-						p.LogVerbose(text, liblog.Colors["R1"])
-						break
+							p.LogVerbose(text, liblog.Colors["R1"])
+							break
 					} else if strings.Contains(message, "A connection attempt failed because the connected party did not properly respond after a period of time") ||
 						strings.Contains(message, "No connection could be made because the target machine actively refused it") ||
 						strings.Contains(message, "HandleServerRequest for psiphon-alert failed") ||
@@ -247,8 +247,8 @@ func (p *Psiphon) Start() {
 						strings.Contains(message, "API request rejected") ||
 						strings.Contains(message, "context canceled") ||
 						strings.Contains(message, "no such host") {
-						p.LogVerbose(message, liblog.Colors["G2"])
-						continue
+							p.LogVerbose(message, liblog.Colors["G2"])
+							continue
 					} else if strings.Contains(message, "bind: address already in use") {
 						p.LogInfo("Port already in use", liblog.Colors["R1"])
 						break
