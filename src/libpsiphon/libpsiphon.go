@@ -18,13 +18,10 @@ import (
 var (
 	Loop          = true
 	DefaultConfig = &Config{
-		CoreName: "psiphon-tunnel-core",
-		Tunnel:   1,
-		Region:   "",
-		Protocols: []string{
-			"FRONTED-MEEK-HTTP-OSSH",
-			"FRONTED-MEEK-OSSH",
-		},
+		CoreName:       "psiphon-tunnel-core",
+		Tunnel:         1,
+		Region:         "",
+		Protocols:      []string{"FRONTED-MEEK-HTTP-OSSH", "FRONTED-MEEK-OSSH"},
 		TunnelWorkers:  6,
 		KuotaDataLimit: 4,
 		Authorizations: make([]string, 0),
