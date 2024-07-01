@@ -37,7 +37,7 @@ var (
 type Config struct {
 	ProxyRotator *libproxyrotator.Config
 	Inject       *libinject.Config
-	Vmess        *VmessConfig
+	Vmess        []*VmessConfig // Sử dụng mảng để lưu trữ nhiều Vmess server
 }
 
 type VmessConfig struct {
@@ -88,12 +88,22 @@ func main() {
 	}
 	defaultConfig.Inject.Payload = ""
 	defaultConfig.Inject.Timeout = 5
-	defaultConfig.Vmess = &VmessConfig{
-		Address: "157.10.52.130",
-		Port:    "80",
-		Id:      "f8c182c3-b3ea-586c-9c29-8e7d664e4f16",
-		AlterId: 2,
-		Security: "auto",
+	defaultConfig.Vmess = []*VmessConfig{
+		{
+			Address: "157.10.52.130",
+			Port:    "80",
+			Id:      "f8c182c3-b3ea-586c-9c29-8e7d664e4f16",
+			AlterId: 2,
+			Security: "auto",
+		},
+		// Thêm server mới vào đây
+		{
+			Address: "1.2.3.4",
+			Port:    "443",
+			Id:      "your_id_here",
+			AlterId: 8,
+			Security: "aes-128-gcm",
+		},
 	}
 
 	libutils.JsonReadWrite(GetConfigPath("config.json"), config, defaultConfig)
@@ -148,36 +158,37 @@ func main() {
 	Redsocks.Start()
 
 	// Tích hợp Vmess
-	vmessConfig := &vmess.Config{
-		Addrs: []string{
-			fmt.Sprintf("%s:%s", config.Vmess.Address, config.Vmess.Port),
-		},
-	}
+	for _, vmessConfig := range config.Vmess {
+		vmessConfig := &vmess.Config{
+			Addrs: []string{
+				fmt.Sprintf("%s:%s", vmessConfig.Address, vmessConfig.Port),
+			},
+		}
 
-	if config.Vmess.AlterId <= 0 {
-		config.Vmess.AlterId = 1
-	}
-	v, err := protocol.NewVmessOutbound(config.Vmess.Id, config.Vmess.AlterId,
-		config.Vmess.Security, vmessConfig)
-	if err != nil {
-		liblog.LogInfo(fmt.Sprintf("Error creating Vmess Outbound: %s", err), "INFO", liblog.Colors["R1"])
-		return
-	}
-	VmessClient = outbound.NewClient(v, nil)
+		if vmessConfig.AlterId <= 0 {
+			vmessConfig.AlterId = 1
+		}
+		v, err := protocol.NewVmessOutbound(vmessConfig.Id, vmessConfig.AlterId,
+			vmessConfig.Security, vmessConfig)
+		if err != nil {
+			liblog.LogInfo(fmt.Sprintf("Error creating Vmess Outbound: %s", err), "INFO", liblog.Colors["R1"])
+			return
+		}
+		VmessClient = outbound.NewClient(v, nil)
 
-	go func() {
-		dns.HandleFunc(":53", func(w dns.ResponseWriter, req *dns.Msg) {
-			liblog.LogVerbose(fmt.Sprintf("dns req: %+v", req), "DEBUG", liblog.Colors["CC"])
-			res := new(dns.Msg)
-			res.SetReply(req)
-			res.RecursionAvailable = false
-			VmessClient.Transport(res, req)
-			liblog.LogVerbose(fmt.Sprintf("dns res: %+v", res), "DEBUG", liblog.Colors["CC"])
-			w.WriteMsg(res)
-		})
-		dns.ListenAndServe(":53", "udp", nil)
-	}()
+		go func() {
+			dns.HandleFunc(":53", func(w dns.ResponseWriter, req *dns.Msg) {
+				liblog.LogVerbose(fmt.Sprintf("dns req: %+v", req), "DEBUG", liblog.Colors["CC"])
+				res := new(dns.Msg)
+				res.SetReply(req)
+				res.RecursionAvailable = false
+				VmessClient.Transport(res, req)
+				liblog.LogVerbose(fmt.Sprintf("dns res: %+v", res), "DEBUG", liblog.Colors["CC"])
+				w.WriteMsg(res)
+			})
+			dns.ListenAndServe(":53", "udp", nil)
+		}()
+	}
 
 	InterruptHandler.Wait()
 }
-

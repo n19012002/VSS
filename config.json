@@ -1,33 +1,59 @@
 {
 	"ProxyRotator": {
-		"Port": "1080"
+	  "Port": "3080",
+	  "Timeout": 10,
+	  "ProxyList": [
+		"127.0.0.1:3081",
+		"127.0.0.1:3082",
+		"127.0.0.1:3083",
+		"127.0.0.1:3084",
+		"127.0.0.1:3085",
+		"127.0.0.1:3086",
+		"127.0.0.1:3087",
+		"127.0.0.1:3088",
+		"127.0.0.1:3089",
+		"127.0.0.1:3090",
+		"127.0.0.1:3091",
+		"127.0.0.1:3092",
+		"127.0.0.1:3093",
+		"127.0.0.1:3094",
+		"127.0.0.1:3095",
+		"127.0.0.1:3096",
+		"127.0.0.1:3097",
+		"127.0.0.1:3098",
+		"127.0.0.1:3099",
+		"127.0.0.1:3100"
+	  ],
+	  "LogOutput": "storage/psiphon/proxyrotator.log"
 	},
 	"Inject": {
-		"Enable": true,
-		"Type": 2,
-		"Port": "8989",
-		"Rules": {
-			"akamai.net:80": [
-				"125.235.36.177"
-			]
-		},
-		"Payload": "",
-		"ServerNameIndication": "",
-		"MeekType": 0,
-		"Timeout": 5,
-		"ShowLog": false
+	  "Port": "3081",
+	  "Type": 2,
+	  "Rules": {
+		"*:*": [
+		  "*"
+		]
+	  },
+	  "Payload": "",
+	  "Timeout": 5,
+	  "MeekType": 1,
+	  "LogOutput": "storage/psiphon/inject.log"
 	},
-	"PsiphonCore": 4,
-	"Psiphon": {
-		"CoreName": "psiphon-tunnel-core",
-		"Tunnel": 1,
-		"Region": "SG",
-		"Protocols": [
-			"FRONTED-MEEK-HTTP-OSSH",
-			"FRONTED-MEEK-OSSH"
-		],
-		"TunnelWorkers": 2,
-		"KuotaDataLimit": 1,
-		"Authorizations": []
-	}
-}
+	"Vmess": [
+	  {
+		"Address": "157.10.52.130",
+		"Port": "80",
+		"Id": "f8c182c3-b3ea-586c-9c29-8e7d664e4f16",
+		"AlterId": 2,
+		"Security": "auto"
+	  },
+	  {
+		"Address": "1.2.3.4",
+		"Port": "443",
+		"Id": "your_id_here",
+		"AlterId": 8,
+		"Security": "aes-128-gcm"
+	  }
+	]
+  }
+  
